@@ -59,7 +59,11 @@ class S3TreeTable(
             GlobalScope.launch {
                 virtualFiles.forEach {
                     try {
-                        bucket.upload(project, it.inputStream, it.length, directoryKey + it.name)
+                        if (it.isDirectory) {
+                            bucket.uploadDirectory(project, it, directoryKey + it.name)
+                        } else {
+                            bucket.upload(project, it.inputStream, it.length, directoryKey + it.name)
+                        }
                         invalidateLevel(node)
                         refresh()
                     } catch (e: Exception) {

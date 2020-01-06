@@ -4,10 +4,12 @@
 package software.aws.toolkits.jetbrains.services.s3.editor
 
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.testFramework.LightVirtualFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.await
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.services.s3.S3Client
@@ -66,6 +68,20 @@ class S3VirtualBucket(val s3Bucket: Bucket, val client: S3Client) : LightVirtual
     suspend fun upload(project: Project, source: InputStream, length: Long, key: String) {
         withContext(Dispatchers.IO) {
             client.upload(project, source, length, s3Bucket.name(), key).await()
+        }
+    }
+
+    suspend fun uploadDirectory(project: Project, source: VirtualFile, baseKey: String) {
+        withContext(Dispatchers.IO) {
+            VfsUtil.iterateChildrenRecursively(source, null) {
+                if (!it.isDirectory) {
+                    val path = baseKey + it.path.substringAfter(source.path)
+                    launch(this.coroutineContext) {
+                        client.upload(project, it.inputStream, length, s3Bucket.name(), path).await()
+                    }
+                }
+                true
+            }
         }
     }
 

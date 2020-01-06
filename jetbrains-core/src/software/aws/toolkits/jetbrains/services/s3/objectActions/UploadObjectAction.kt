@@ -38,7 +38,11 @@ class UploadObjectAction(
             try {
                 filesChosen.forEach { file ->
                     try {
-                        bucket.upload(project, file.inputStream, file.length, directoryKey + file.name)
+                        if (file.isDirectory) {
+                            bucket.uploadDirectory(project, file, directoryKey + file.name)
+                        } else {
+                            bucket.upload(project, file.inputStream, file.length, directoryKey + file.name)
+                        }
                         treeTable.invalidateLevel(node)
                         treeTable.refresh()
                         TelemetryService.recordSimpleTelemetry(project, SINGLE_OBJECT, TelemetryConstants.TelemetryResult.Succeeded)
