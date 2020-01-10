@@ -28,6 +28,7 @@ import com.intellij.util.IconUtil
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.JBUI.CurrentTheme.Validator.errorBackgroundColor
 import com.intellij.util.ui.JBUI.CurrentTheme.Validator.errorBorderColor
+import com.intellij.util.ui.SwingHelper
 import software.amazon.awssdk.services.ecs.model.ContainerDefinition
 import software.aws.toolkits.core.credentials.ToolkitCredentialsProvider
 import software.aws.toolkits.core.region.AwsRegion
@@ -105,6 +106,8 @@ class EcsCloudDebugSettingsEditorPanel(private val project: Project) : Disposabl
 
         serviceSelector.isEnabled = false
         serviceSelector.addActionListener { this.onServiceSelectionChange() }
+
+
     }
 
     private fun postUIComponents() {
@@ -117,6 +120,7 @@ class EcsCloudDebugSettingsEditorPanel(private val project: Project) : Disposabl
 
         containerSettingsToolbarHolder.setContent(toolbar.component)
         containerSettingsTabHolder.setContent(tabs.component)
+        SwingHelper.setPreferredWidth(this.panel, this.panel.width)
     }
 
     private fun createToolbar(): ActionToolbar {
